@@ -2,7 +2,7 @@
 
 This is a basic fastapi application which serve the html pages of LLM notes, with the help of jinja template.
 
-## Preerquisite:
+## Prerequisite:
 - Make sure your system have python and `uv` package manager installed, if not then go to the respective offical website and install those.
 
 
