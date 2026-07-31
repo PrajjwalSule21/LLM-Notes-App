@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}LLM API Basics - Notes{% endblock %}
+
+{% block content %}
+  <h1>LLM API Basics 📝</h1>
+  <div class="subtitle">-- notes for myself, keep it simple --</div>
+
+  <h2>1. What even IS an LLM API?</h2>
+  <p><span class="tag">Simple analogy:</span> Imagine texting a super-smart friend.
+  You type a message <span class="arrow">→</span> they read it <span class="arrow">→</span> they text back.
+  The "API" is just the phone line that carries your text to them and their reply back to you.</p>
+
+  <p><span class="tag green">Technical:</span> The LLM API is an <span class="analogy">HTTP endpoint</span>
+  you send a request to (your message + settings), and it returns a JSON response (the model's reply).
+  No "friend" — it's a stateless server. Every time you call it, you must resend the WHOLE conversation,
+  because it has no memory of before.</p>
+
+  <div class="code">POST https://api.anthropic.com/v1/messages
+Body: { model, messages, max_tokens, temperature... }</div>
+
+  <hr>
+
+  <h2>2. Chat Completions (the endpoint)</h2>
+  <p><span class="tag">Simple analogy:</span> Like handing a whole chat history (the full WhatsApp thread)
+  to a smart friend and saying "read all this, now what should I say next?" — they don't remember your
+  last chat, so you re-send everything, every time.</p>
+
+  <p><span class="tag green">Technical:</span> "Chat completion" = you send an array of past
+  <span class="analogy">messages</span> (the conversation so far), and the model returns the
+  <span class="analogy">next message</span> that would logically come after it — this is literally called
+  "completing" the chat.</p>
+
+  <hr>
+
+  <h2>3. Roles: system / user / assistant</h2>
+  <p><span class="tag">Simple analogy:</span> Think of a movie script:</p>
+  <ul>
+    <li class="star"><b>Director's note</b> (before scene starts) = <b>system</b></li>
+    <li class="star"><b>Actor A's line</b> = <b>user</b></li>
+    <li class="star"><b>Actor B's reply</b> = <b>assistant</b></li>
+  </ul>
+
+  <p><span class="tag green">Technical:</span></p>
+  <div class="box">
+  <b>system</b> — sets behavior/personality/rules for the WHOLE conversation.<br>
+  <i>e.g. "You are a strict math tutor. Never give the direct answer."</i>
+  </div><br>
+  <div class="box">
+  <b>user</b> — what the human typed. <i>e.g. "What is 2+2?"</i>
+  </div><br>
+  <div class="box">
+  <b>assistant</b> — what the model replied. <i>e.g. "Try adding step by step!"</i>
+  </div>
+
+  <p>Every request = array like:</p>
+  <div class="code">[
+  {role: "system", content: "You are a pirate."},
+  {role: "user", content: "Hi!"},
+  {role: "assistant", content: "Arrr, hello!"},
+  {role: "user", content: "How are you?"}
+]</div>
+  <p class="doodle">^ this whole thing gets sent EVERY single time!</p>
+
+  <hr>
+
+  <h2>4. Temperature</h2>
+  <p><span class="tag">Simple analogy:</span> Like a spice level dial 🌶️ for a chef.
+  Low spice = same safe, predictable dish every time.
+  High spice = chef gets creative/wild, different result each time.</p>
+
+  <p><span class="tag green">Technical:</span> Temperature controls
+  <span class="analogy">randomness in word choice</span> (0 to 1, sometimes up to 2).</p>
+  <ul>
+    <li><b>temperature = 0</b> → same, most-likely, predictable answer every time (good for math, code, facts)</li>
+    <li><b>temperature = 1</b> → more variety, creative, less predictable (good for stories, brainstorming)</li>
+  </ul>
+  <p class="doodle">Rule of thumb: facts → low temp | creativity → high temp</p>
+
+  <hr>
+
+  <h2>5. max_tokens</h2>
+  <p><span class="tag">Simple analogy:</span> Like telling someone "you only get 100 words to answer" —
+  a word-count limit for the reply.</p>
+
+  <p><span class="tag green">Technical:</span> <span class="analogy">max_tokens</span> = the max number
+  of tokens (roughly ¾ of a word each) the model is ALLOWED to generate in its reply.
+  If the answer needs more space than that, it gets cut off mid-sentence.</p>
+  <div class="code">max_tokens: 1000  → model can write up to ~750 words, then stops</div>
+  <p class="doodle">Doesn't affect input size — only how long the OUTPUT can be.</p>
+
+  <hr>
+
+  <h2>6. Streaming</h2>
+  <p><span class="tag">Simple analogy:</span> Difference between:</p>
+  <ul>
+    <li><b>Non-streaming</b> = waiting for someone to finish writing a whole letter, then handing it to you all at once ✉️</li>
+    <li><b>Streaming</b> = watching someone type a text message live, word by word, as it appears 💬</li>
+  </ul>
+
+  <p><span class="tag green">Technical:</span> With <span class="analogy">stream: true</span>, the API
+  sends the response in small chunks (tokens) as they're generated, instead of waiting for the full
+  completion. Great for chat UIs — feels instant instead of a long loading spinner.</p>
+  <div class="code">stream: true
+→ response arrives as: "The" "capital" "of" "France" "is" "Paris" ...(one chunk at a time)</div>
+
+  <hr>
+  <p class="doodle">✔ system = rules | user = you | assistant = model
+✔ temperature = randomness dial | max_tokens = reply length cap
+✔ streaming = live typing vs wait-for-whole-thing</p>
+
+{% endblock %}

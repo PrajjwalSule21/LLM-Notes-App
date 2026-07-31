@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{% block title %}My Notes{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fdfaf1;
+    --line: #cfd8e6;
+    --margin: #f0a3a3;
+    --ink: #2b2b3a;
+    --ink2: #1f3a8f;
+    --highlight: #fff1a8;
+    --accent: #c0392b;
+    --green: #2e7d32;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0;
+    background: #e9e4d8;
+    font-family: 'Kalam', cursive;
+    display: flex;
+    justify-content: center;
+  }
+  .sheet {
+    background: var(--paper);
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 33px,
+      var(--line) 34px
+    );
+    width: 100%;
+    max-width: 820px;
+    padding: 40px 40px 60px 70px;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+    line-height: 34px;
+    margin: 24px 0;
+  }
+  .sheet::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 48px;
+    width: 2px;
+    background: var(--margin);
+    opacity: 0.6;
+  }
+  h1 {
+    font-family: 'Caveat', cursive;
+    font-size: 46px;
+    color: var(--ink2);
+    margin: 0 0 4px 0;
+    text-decoration: underline wavy var(--accent);
+  }
+  .subtitle {
+    font-size: 19px;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+  h2 {
+    font-family: 'Caveat', cursive;
+    font-size: 32px;
+    color: var(--ink2);
+    margin: 30px 0 2px 0;
+    border-bottom: 2px dashed var(--ink2);
+    display: inline-block;
+  }
+  .analogy {
+    background: var(--highlight);
+    display: inline;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    padding: 0 4px;
+  }
+  p {
+    font-size: 19px;
+    color: var(--ink);
+    margin: 6px 0;
+  }
+  a { color: var(--ink2); }
+  .tag {
+    font-family: 'Caveat', cursive;
+    font-weight: 700;
+    color: var(--accent);
+    font-size: 21px;
+  }
+  .tag.green { color: var(--green); }
+  .code {
+    font-family: 'Kalam', cursive;
+    background: #eef1fb;
+    border: 1.5px dashed var(--ink2);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 17px;
+    margin: 8px 0;
+    white-space: pre-wrap;
+    color: #14206b;
+  }
+  .arrow {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .box {
+    border: 2px solid var(--ink2);
+    border-radius: 10px;
+    padding: 8px 14px;
+    margin: 10px 0;
+    background: rgba(255,255,255,0.5);
+    display: inline-block;
+  }
+  .doodle {
+    font-family: 'Caveat', cursive;
+    color: var(--accent);
+    font-size: 22px;
+    transform: rotate(-2deg);
+    display: inline-block;
+  }
+  ul { margin: 4px 0; padding-left: 24px; }
+  li { font-size: 19px; margin: 3px 0; }
+  .star::before { content: "★ "; color: var(--accent); }
+  hr {
+    border: none;
+    border-top: 2px dotted #999;
+    margin: 26px 0 10px 0;
+  }
+  table {
+    border-collapse: collapse;
+    font-size: 18px;
+    margin: 10px 0;
+  }
+  td, th {
+    border: 1.5px dashed var(--ink2);
+    padding: 4px 12px;
+    text-align: left;
+  }
+  .note-list {
+    list-style: none;
+    padding: 0;
+  }
+  .note-list li {
+    margin: 14px 0;
+  }
+  .note-list a {
+    font-family: 'Caveat', cursive;
+    font-size: 28px;
+    text-decoration: none;
+    border-bottom: 2px dashed var(--accent);
+  }
+  .note-list a:hover { color: var(--accent); }
+  .note-desc {
+    font-size: 17px;
+    color: #555;
+    display: block;
+    margin-top: -4px;
+  }
+  {% block extra_style %}{% endblock %}
+</style>
+</head>
+<body>
+<div class="sheet">
+  {% block content %}{% endblock %}
+
+  <hr>
+  <footer style="text-align:center; margin-top:10px;">
+    <a href="/" style="font-family:'Caveat',cursive; font-size:22px; text-decoration:none; border-bottom:2px dashed var(--accent);">&larr; back to home</a>
+  </footer>
+</div>
+</body>
+</html>

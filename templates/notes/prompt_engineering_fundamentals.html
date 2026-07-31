@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+
+{% block title %}Prompt Engineering Fundamentals - Notes{% endblock %}
+
+{% block content %}
+  <h1>Prompt Engineering Fundamentals 📝</h1>
+  <div class="subtitle">-- zero-shot, few-shot, system prompt design + all other techniques --</div>
+
+  <h2>1. What is "Prompt Engineering"?</h2>
+  <p><span class="tag">Simple analogy:</span> Like giving instructions to a new intern on day 1.
+  Vague instructions ("do the report") = messy result. Clear instructions with examples
+  ("here's last month's report as a sample, follow this exact format") = good result.
+  Prompt engineering = getting good at writing those instructions.</p>
+
+  <p><span class="tag green">Technical:</span> <span class="analogy">Prompt engineering</span> = the
+  practice of designing the input text (prompt) to reliably steer the model toward the output you want
+  — without changing the model itself, only the wording/structure/examples you give it.</p>
+
+  <hr>
+
+  <h2>2. Zero-shot prompting</h2>
+  <p><span class="tag">Simple analogy:</span> Asking the intern to do a task with ZERO examples —
+  "translate this sentence to French" — no sample translation given. You're trusting they already
+  know how, from general knowledge.</p>
+
+  <p><span class="tag green">Technical:</span> <span class="analogy">Zero-shot</span> = you give the
+  model ONLY the instruction/question, no examples of input→output pairs. Works because the model
+  already learned the task pattern during training.</p>
+
+  <div class="code">Prompt:
+"Classify the sentiment of this review as Positive/Negative/Neutral:
+'The food was cold and the service was slow.'"
+
+→ no examples shown, model just does it directly</div>
+  <p class="doodle">Good for: simple, common tasks the model has clearly "seen" before
+  (translation, summarizing, basic classification)</p>
+
+  <hr>
+
+  <h2>3. Few-shot prompting</h2>
+  <p><span class="tag">Simple analogy:</span> Now you give the intern 2-3 SAMPLE examples first —
+  "here's how I labeled the last 3 reviews, now label this new one the same way."
+  They copy the pattern instead of guessing.</p>
+
+  <p><span class="tag green">Technical:</span> <span class="analogy">Few-shot</span> = you include a
+  handful of example input→output pairs INSIDE the prompt, before the real question, so the model
+  can pattern-match the exact format/style/logic you want.</p>
+
+  <div class="code">Prompt:
+"Review: 'Amazing pasta!' → Positive
+Review: 'Waiter was rude.' → Negative
+Review: 'It was okay, nothing special.' → Neutral
+Review: 'The food was cold and the service was slow.' → ?"
+
+→ model follows the exact pattern shown, outputs: Negative</div>
+
+  <p class="doodle">Good for: tricky formats, specific style/tone, edge cases zero-shot gets wrong</p>
+
+  <p><span class="tag">Zero-shot vs Few-shot:</span></p>
+  <table>
+    <tr><th></th><th>Zero-shot</th><th>Few-shot</th></tr>
+    <tr><td>Examples given</td><td>0</td><td>2-5 (usually)</td></tr>
+    <tr><td>Prompt length</td><td>short</td><td>longer (uses more tokens)</td></tr>
+    <tr><td>Reliability</td><td>ok for easy/common tasks</td><td>much more consistent for niche/custom formats</td></tr>
+  </table>
+
+  <hr>
+
+  <h2>4. System Prompt Design</h2>
+  <p><span class="tag">Simple analogy:</span> Remember the movie-script idea — the
+  <b>system prompt</b> is the director's note read ONCE before filming starts, setting the tone,
+  character, and rules for the entire scene. The actor (model) follows that mood for every line after.</p>
+
+  <p><span class="tag green">Technical:</span> The <span class="analogy">system prompt</span> is a
+  special instruction set at the START of the conversation (role: "system") that shapes the model's
+  behavior for the WHOLE session — persona, tone, constraints, output format — separate from the
+  actual user questions that follow.</p>
+
+  <div class="code">system: "You are a senior Python code reviewer. Always point out bugs first,
+then suggest improvements. Keep responses under 100 words. Never write full
+rewritten code, only bullet-point feedback."
+
+user: "def add(a,b): return a+b"
+→ model replies as that reviewer persona, in that format, every single time</div>
+
+  <p><span class="tag">Good system prompt design = be specific about:</span></p>
+  <ul>
+    <li class="star"><b>Role/persona</b> — "You are a ___"</li>
+    <li class="star"><b>Tone</b> — formal, casual, blunt, friendly</li>
+    <li class="star"><b>Constraints</b> — length limits, what NOT to do</li>
+    <li class="star"><b>Output format</b> — bullet points, JSON, table, plain text</li>
+    <li class="star"><b>Edge case handling</b> — what to do if unsure / info missing</li>
+  </ul>
+
+  <p class="doodle">Vague system prompt = "Be helpful." → generic, inconsistent behavior
+Specific system prompt = clear role + tone + format + rules → consistent behavior</p>
+
+  <hr>
+
+  <h2>5. Chain-of-Thought (CoT) prompting</h2>
+  <p><span class="tag">Simple analogy:</span> Asking someone to "show their working" in a maths exam
+  instead of just writing the final answer — forcing step-by-step reasoning reduces silly mistakes.</p>
+  <p><span class="tag green">Technical:</span> You ask the model to reason through
+  <span class="analogy">intermediate steps</span> before giving the final answer, instead of jumping
+  straight to it. Big accuracy boost on math/logic tasks.</p>
+  <div class="code">Prompt: "A shop had 23 apples, sold 8, then got 15 more. How many now?
+Think step by step before giving the final answer."
+→ "23 - 8 = 15. 15 + 15 = 30. Final answer: 30"</div>
+
+  <hr>
+
+  <h2>6. Zero-shot CoT</h2>
+  <p><span class="tag">Simple analogy:</span> The magic phrase "let's think step by step" said to
+  ANY problem, with zero examples — like a teacher's generic hint that works for almost every question.</p>
+  <p><span class="tag green">Technical:</span> Combine zero-shot with a simple trigger phrase like
+  <span class="analogy">"Let's think step by step"</span> — no examples needed, just this one line
+  unlocks step-by-step reasoning.</p>
+  <div class="code">Prompt: "If a train travels 60km in 40 min, what's its speed in km/h?
+Let's think step by step."</div>
+
+  <hr>
+
+  <h2>7. Self-Consistency</h2>
+  <p><span class="tag">Simple analogy:</span> Asking 5 different people to solve the same puzzle
+  independently, then going with whatever answer MOST of them agree on — majority vote beats one guess.</p>
+  <p><span class="tag green">Technical:</span> Run the SAME CoT prompt multiple times (with some
+  randomness/temperature), collect multiple reasoning paths + answers, and pick the most frequent
+  final answer. More reliable than a single CoT pass.</p>
+  <div class="code">Run prompt 5 times → answers: [42, 42, 41, 42, 42]
+→ majority vote = 42 (final answer)</div>
+
+  <hr>
+
+  <h2>8. Tree of Thoughts (ToT)</h2>
+  <p><span class="tag">Simple analogy:</span> Like exploring a maze by trying multiple paths at each
+  fork, backtracking from dead ends, instead of committing to just one path from the start.</p>
+  <p><span class="tag green">Technical:</span> The model explores MULTIPLE reasoning branches at each
+  step (like a decision tree), evaluates which branches look promising, and can backtrack — useful for
+  complex planning/puzzle-solving where a single CoT chain can get stuck.</p>
+  <div class="code">Step 1: generate 3 possible next moves
+Step 2: evaluate each ("promising" / "dead end")
+Step 3: expand only the promising ones, repeat</div>
+
+  <hr>
+
+  <h2>9. ReAct (Reason + Act)</h2>
+  <p><span class="tag">Simple analogy:</span> Like a detective who alternates between THINKING
+  ("what should I check next?") and ACTING (going to check it, e.g. searching a database), using each
+  new clue to guide the next thought.</p>
+  <p><span class="tag green">Technical:</span> The model alternates between
+  <span class="analogy">Reasoning</span> (thinking what to do) and <span class="analogy">Acting</span>
+  (calling a tool/API/search), using the tool's result to inform the next reasoning step. This is the
+  core pattern behind most AI agents and tool-use.</p>
+  <div class="code">Thought: I need today's weather to answer this.
+Action: call weather_api("Jabalpur")
+Observation: "32°C, clear sky"
+Thought: Now I can answer.
+Answer: "It's 32°C and clear in Jabalpur today."</div>
+
+  <hr>
+
+  <h2>10. Role / Persona Prompting</h2>
+  <p><span class="tag">Simple analogy:</span> Telling someone "act like a strict exam-checker" before
+  giving them your essay — they nitpick harder than if you just said "check this."</p>
+  <p><span class="tag green">Technical:</span> Assign the model a specific
+  <span class="analogy">persona/expertise</span> ("You are a senior security auditor") to bias its
+  vocabulary, depth, and focus toward that role's perspective. Often done via system prompt, but can
+  also be inline in the user message.</p>
+  <div class="code">"Act as a skeptical venture capitalist. Review this pitch and find every
+weakness an investor would find."</div>
+
+  <hr>
+
+  <h2>11. Least-to-Most Prompting</h2>
+  <p><span class="tag">Simple analogy:</span> Like breaking a big scary homework assignment into
+  small sub-tasks and solving the easiest one first, then using that to solve the next.</p>
+  <p><span class="tag green">Technical:</span> Break a complex problem into a sequence of
+  <span class="analogy">simpler sub-problems</span>, solve them in order, and feed each answer into
+  solving the next — good for multi-step problems that overwhelm a single CoT pass.</p>
+  <div class="code">Q: "How many total wheels on 3 cars and 2 bikes?"
+Step 1: wheels on 3 cars = 12
+Step 2: wheels on 2 bikes = 4
+Step 3: total = 12 + 4 = 16</div>
+
+  <hr>
+
+  <h2>12. Generated Knowledge Prompting</h2>
+  <p><span class="tag">Simple analogy:</span> Asking someone to first recall everything they know
+  about a topic on scratch paper, THEN answer the actual question using those notes — priming the brain
+  before the real task.</p>
+  <p><span class="tag green">Technical:</span> First prompt the model to
+  <span class="analogy">generate relevant facts/knowledge</span> about the topic, then feed those
+  generated facts back in as context for the actual question — improves accuracy on knowledge-heavy
+  questions.</p>
+  <div class="code">Step 1: "List 5 facts about how vaccines work."
+Step 2: "Using those facts, explain why 2 doses are often needed."</div>
+
+  <hr>
+
+  <h2>13. Step-Back Prompting</h2>
+  <p><span class="tag">Simple analogy:</span> Before answering a tricky specific question, first
+  ask a bigger, more general question — like zooming out on a map before zooming into a street.</p>
+  <p><span class="tag green">Technical:</span> Ask the model to first answer a more
+  <span class="analogy">abstract/general version</span> of the question, then use that general
+  understanding to answer the specific original question — reduces reasoning errors on tricky specifics.</p>
+  <div class="code">Original Q: "What was the temperature in Paris on July 4th, 1854?"
+Step-back Q: "What general historical weather records exist for Paris in the 1850s?"
+→ then answer the original using that broader context</div>
+
+  <hr>
+
+  <h2>14. Self-Refine / Reflexion</h2>
+  <p><span class="tag">Simple analogy:</span> Writing a first draft of an essay, then re-reading it
+  yourself and rewriting the weak parts — instead of submitting the very first version.</p>
+  <p><span class="tag green">Technical:</span> The model generates an answer, then is prompted to
+  <span class="analogy">critique its own output</span> and produce an improved version — can be looped
+  multiple times. Also called Reflexion when the critique is stored as "lessons" for future attempts.</p>
+  <div class="code">Step 1: model writes an answer
+Step 2: "Review your answer above. Find mistakes or weak points."
+Step 3: "Now rewrite the answer, fixing those issues."</div>
+
+  <hr>
+
+  <h2>15. Chain-of-Verification (CoVe)</h2>
+  <p><span class="tag">Simple analogy:</span> After writing an answer, fact-checking yourself by
+  asking a list of "is this actually true?" questions before finalizing — like proofreading a report
+  against your sources.</p>
+  <p><span class="tag green">Technical:</span> Model drafts an initial answer, then generates
+  <span class="analogy">verification questions</span> to check facts in that answer, answers them
+  independently, and revises the original answer based on any contradictions found — reduces
+  hallucination.</p>
+  <div class="code">Draft: "The Eiffel Tower was built in 1887 and is 400m tall."
+Verify Q1: "What year was the Eiffel Tower built?" → 1887-1889
+Verify Q2: "What is the Eiffel Tower's height?" → ~330m
+→ Revised: "...built 1887-1889, is about 330m tall."</div>
+
+  <hr>
+
+  <h2>16. Prompt Chaining</h2>
+  <p><span class="tag">Simple analogy:</span> An assembly line — one worker's output becomes the
+  next worker's input, instead of one person trying to do the entire car build alone.</p>
+  <p><span class="tag green">Technical:</span> Break a big task into a
+  <span class="analogy">sequence of separate prompts/API calls</span>, where each step's output feeds
+  into the next step's input — more reliable than cramming everything into one giant prompt.</p>
+  <div class="code">Call 1: "Summarize this 10-page report."
+Call 2: "Using that summary, write 3 action items."
+Call 3: "Turn those action items into a Slack message."</div>
+
+  <hr>
+
+  <h2>17. Structured Output Prompting (delimiters, XML/JSON tags)</h2>
+  <p><span class="tag">Simple analogy:</span> Giving someone a fill-in-the-blanks form instead of a
+  blank sheet of paper — they can't wander off-format because the boxes are already drawn.</p>
+  <p><span class="tag green">Technical:</span> Explicitly instruct (and often show an example of) the
+  <span class="analogy">exact output structure</span> — JSON schema, XML tags, markdown table — so the
+  response is easy to parse programmatically. Widely used when the output feeds into other code.</p>
+  <div class="code">"Respond ONLY in this JSON format:
+{ "name": string, "sentiment": "positive"|"negative"|"neutral" }
+No extra text before or after the JSON."</div>
+
+  <hr>
+
+  <h2>18. Retrieval-Augmented Prompting (RAG-style)</h2>
+  <p><span class="tag">Simple analogy:</span> Open-book exam vs closed-book exam — instead of relying
+  purely on memory, you hand the model the exact reference pages ("here's the doc, answer using only
+  this") right inside the prompt.</p>
+  <p><span class="tag green">Technical:</span> You <span class="analogy">retrieve relevant documents</span>
+  (from a database/search) and paste the relevant chunks INTO the prompt as context, then ask the
+  question — grounds the answer in real, current, or private data instead of the model's memory alone.</p>
+  <div class="code">Context: [paste 3 relevant paragraphs from company policy doc]
+Question: "What is our refund window per this policy?"
+→ answer must be based only on the pasted context</div>
+
+  <hr>
+
+  <h2>19. Meta Prompting / Automatic Prompt Engineering (APE)</h2>
+  <p><span class="tag">Simple analogy:</span> Asking a professional resume-writer to write YOUR resume
+  instead of writing it yourself — here, you ask the model to write or improve the prompt itself.</p>
+  <p><span class="tag green">Technical:</span> Use the LLM to <span class="analogy">generate or optimize
+  prompts</span> for a given task — e.g. generate 10 candidate prompt variations, test them, keep the
+  best one. Automates prompt design instead of hand-crafting it.</p>
+  <div class="code">"I want a prompt that makes you summarize articles in exactly 3 bullet points,
+in a neutral tone. Write the best possible system prompt for this."</div>
+
+  <hr>
+
+  <h2>20. Negative / Contrastive Prompting</h2>
+  <p><span class="tag">Simple analogy:</span> Telling a new employee not just what to do, but also
+  what mistakes past employees made — "don't do X, don't do Y" — sharpens understanding by contrast.</p>
+  <p><span class="tag green">Technical:</span> Explicitly state what the model should
+  <span class="analogy">NOT do</span> (avoid certain words/formats/behaviors), sometimes alongside a
+  "bad example" vs "good example" pair, to sharpen the boundary of acceptable output.</p>
+  <div class="code">"Write a product description. Do NOT use the words 'amazing' or 'revolutionary'.
+Bad: 'This amazing revolutionary blender changes everything!'
+Good: 'This blender crushes ice in seconds and cleans itself.'"</div>
+
+  <hr>
+
+  <h2>Quick reference — which technique to reach for</h2>
+  <table>
+    <tr><th>Situation</th><th>Technique</th></tr>
+    <tr><td>Simple, common task</td><td>Zero-shot</td></tr>
+    <tr><td>Need a specific format/style</td><td>Few-shot</td></tr>
+    <tr><td>Setting behavior for a whole session</td><td>System prompt</td></tr>
+    <tr><td>Math/logic questions</td><td>Chain-of-Thought</td></tr>
+    <tr><td>Want CoT but no examples handy</td><td>Zero-shot CoT</td></tr>
+    <tr><td>Need higher reliability on one answer</td><td>Self-Consistency</td></tr>
+    <tr><td>Complex planning/search problems</td><td>Tree of Thoughts</td></tr>
+    <tr><td>Need to use tools/search mid-answer</td><td>ReAct</td></tr>
+    <tr><td>Want a specific expert voice</td><td>Role/Persona prompting</td></tr>
+    <tr><td>Multi-step problem, one builds on another</td><td>Least-to-Most</td></tr>
+    <tr><td>Knowledge-heavy question</td><td>Generated Knowledge</td></tr>
+    <tr><td>Tricky specific question</td><td>Step-Back prompting</td></tr>
+    <tr><td>Want the model to self-correct</td><td>Self-Refine / Reflexion</td></tr>
+    <tr><td>Reduce hallucinated facts</td><td>Chain-of-Verification</td></tr>
+    <tr><td>Big task, multiple stages</td><td>Prompt Chaining</td></tr>
+    <tr><td>Output must be parsed by code</td><td>Structured Output prompting</td></tr>
+    <tr><td>Need answers grounded in real docs</td><td>Retrieval-Augmented prompting</td></tr>
+    <tr><td>Want help designing the prompt itself</td><td>Meta prompting / APE</td></tr>
+    <tr><td>Model keeps making a specific mistake</td><td>Negative/Contrastive prompting</td></tr>
+  </table>
+
+  <hr>
+  <p class="doodle">✔ zero-shot = no examples, just ask
+✔ few-shot = show 2-5 examples first, then ask
+✔ system prompt = the "director's note" for the whole conversation
+✔ CoT / self-consistency / ToT = better reasoning tricks
+✔ ReAct = reasoning + tool use, back and forth
+✔ self-refine / CoVe = model checks and fixes its own answer
+✔ prompt chaining / RAG / structured output = practical engineering patterns
+✔ meta prompting = use the model to write better prompts</p>
+{% endblock %}

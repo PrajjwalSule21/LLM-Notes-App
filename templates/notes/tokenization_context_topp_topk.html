@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Tokenization, Context Window, top_p, top_k - Notes{% endblock %}
+
+{% block content %}
+  <h1>Tokenization, Context Window, top_p & top_k 📝</h1>
+  <div class="subtitle">-- part 2 of my LLM API notes --</div>
+
+  <h2>1. Tokenization</h2>
+  <p><span class="tag">Simple analogy:</span> Imagine you can't read whole sentences —
+  you can only read them if they're chopped into small <b>Lego pieces</b>.
+  Before the model can "think," it must break your sentence into these small pieces (tokens).</p>
+
+  <p><span class="tag green">Technical:</span> <span class="analogy">Tokenization</span> = splitting
+  text into small chunks (tokens) — not always whole words, sometimes pieces of words. The model
+  doesn't see letters or words directly, it sees a list of token IDs (numbers).</p>
+
+  <div class="code">"unbelievable" → ["un", "believ", "able"]  (3 tokens)
+"Hi!"          → ["Hi", "!"]              (2 tokens)</div>
+
+  <p class="doodle">Rule of thumb: 1 token ≈ ¾ of an English word
+  ~100 tokens ≈ 75 words</p>
+
+  <p><span class="tag">Why care?</span> Both <b>max_tokens</b> (reply limit) AND API pricing are
+  based on token count, not word count or character count.</p>
+
+  <hr>
+
+  <h2>2. Context Window</h2>
+  <p><span class="tag">Simple analogy:</span> Like a whiteboard of a fixed size 🧑‍🏫.
+  You can keep writing on it, but once it's full, the oldest stuff at the top has to be erased to make
+  room for new stuff. The model can only "see" what fits on the board at once.</p>
+
+  <p><span class="tag green">Technical:</span> The <span class="analogy">context window</span> is the
+  MAXIMUM number of tokens (input + output combined) the model can handle in one request —
+  the entire conversation history, system prompt, your new message, AND the reply it generates,
+  all have to fit inside this limit.</p>
+
+  <div class="code">Context window = 200,000 tokens
+  → system prompt + all past messages + new message + max_tokens(reply)
+     must together be ≤ 200,000</div>
+
+  <p class="doodle">If your chat gets too long, old messages must be dropped/summarized
+  — the model literally can't "remember" what doesn't fit on the whiteboard.</p>
+
+  <hr>
+
+  <h2>3. top_p (nucleus sampling)</h2>
+  <p><span class="tag">Simple analogy:</span> Imagine a chef picking the next ingredient not from
+  ALL ingredients in the kitchen, but only from the <b>top ones that together make up 90% of what's
+  usually good</b> — ignoring the weird rarely-used ones.</p>
+
+  <p><span class="tag green">Technical:</span> <span class="analogy">top_p</span> = the model looks at
+  all possible next-word probabilities, sorts them highest to lowest, and only considers words from the
+  smallest group whose probabilities add up to <b>p</b> (e.g. 0.9 = top 90% probability mass).
+  The rest are thrown away before picking.</p>
+
+  <div class="code">Next word options: "cat"(40%) "dog"(35%) "car"(15%) "kite"(5%) "zebra"(5%)
+top_p = 0.9 → only considers "cat", "dog", "car" (sums to 90%)
+             "kite" and "zebra" are excluded from being picked</div>
+
+  <p class="doodle">top_p = 1.0 → considers everything (no cutoff)
+  top_p = 0.5 → very narrow, safe, boring choices only</p>
+
+  <hr>
+
+  <h2>4. top_k</h2>
+  <p><span class="tag">Simple analogy:</span> Like a chef who only picks from a fixed <b>shortlist of
+  top 5 ingredients</b>, no matter how good or bad each one is — a fixed COUNT limit, not a percentage.</p>
+
+  <p><span class="tag green">Technical:</span> <span class="analogy">top_k</span> = only consider the
+  top <b>K</b> most likely next tokens (a fixed number), then pick among just those.</p>
+
+  <div class="code">Next word options ranked: "cat" "dog" "car" "kite" "zebra" "moon" ...
+top_k = 3 → only "cat", "dog", "car" are considered (top 3, no matter their %)</div>
+
+  <hr>
+
+  <h2>top_p vs top_k — quick comparison</h2>
+  <table>
+    <tr><th></th><th>top_p</th><th>top_k</th></tr>
+    <tr><td>Cutoff type</td><td>% of probability mass</td><td>fixed count of words</td></tr>
+    <tr><td>Flexible?</td><td>Yes, pool size changes by context</td><td>No, always exactly K options</td></tr>
+    <tr><td>Analogy</td><td>"top 90% of usual picks"</td><td>"top 5 picks, period"</td></tr>
+  </table>
+  <p class="doodle">Often used TOGETHER with temperature to control randomness —
+  many APIs recommend tweaking only ONE of temperature/top_p at a time, not both.</p>
+
+  <hr>
+  <p class="doodle">✔ tokenization = chopping text into Lego-piece chunks
+✔ context window = size of the whiteboard (input+output limit)
+✔ top_p = pick from top X% probability pool
+✔ top_k = pick from fixed top-K word list</p>
+
+{% endblock %}
